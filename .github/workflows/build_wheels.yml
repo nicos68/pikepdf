@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04]
-        platform: [manylinux_x86_64, manylinux_i686, manylinux_aarch64]
+        platform: [manylinux_aarch64]
 
     steps:
       - uses: actions/checkout@v2
@@ -60,150 +60,150 @@ jobs:
         with:
           path: ./wheelhouse/*.whl
 
-  wheels_macos:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    env:
-      CIBW_SKIP: "cp27-* cp35-* pp2*"
-      CIBW_TEST_COMMAND: "pytest -nauto {project}/tests"
-      CIBW_TEST_REQUIRES: "-r requirements/test.txt"
-      CIBW_BEFORE_ALL: "brew install qpdf"
-    strategy:
-      matrix:
-        os: [macos-10.15]
+  # wheels_macos:
+  #   name: Build wheels on ${{ matrix.os }}
+  #   runs-on: ${{ matrix.os }}
+  #   env:
+  #     CIBW_SKIP: "cp27-* cp35-* pp2*"
+  #     CIBW_TEST_COMMAND: "pytest -nauto {project}/tests"
+  #     CIBW_TEST_REQUIRES: "-r requirements/test.txt"
+  #     CIBW_BEFORE_ALL: "brew install qpdf"
+  #   strategy:
+  #     matrix:
+  #       os: [macos-10.15]
 
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: "0"
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         fetch-depth: "0"
 
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: "3.8"
+  #     - uses: actions/setup-python@v2
+  #       name: Install Python
+  #       with:
+  #         python-version: "3.8"
 
-      - name: Build wheels
-        uses: joerick/cibuildwheel@v1.10.0
-        #env:
-        #  CIBW_ARCHS_MACOS: x86_64 universal2 # for Apple Silicon
+  #     - name: Build wheels
+  #       uses: joerick/cibuildwheel@v1.10.0
+  #       #env:
+  #       #  CIBW_ARCHS_MACOS: x86_64 universal2 # for Apple Silicon
 
-      - uses: actions/upload-artifact@v2
-        with:
-          path: ./wheelhouse/*.whl
+  #     - uses: actions/upload-artifact@v2
+  #       with:
+  #         path: ./wheelhouse/*.whl
 
-  wheels_windows:
-    name: Build wheels on ${{ matrix.os }} for ${{ matrix.platform }}
-    runs-on: ${{ matrix.os }}
-    env:
-      CIBW_SKIP: "cp27-* cp35-* pp2* pp3*"
-      CIBW_TEST_COMMAND: "pytest -nauto {project}/tests"
-      CIBW_TEST_REQUIRES: "-r requirements/test.txt"
-      CIBW_BUILD: "*-${{ matrix.platform }}"
-      CIBW_ENVIRONMENT: >-
-        INCLUDE="$INCLUDE;d:\\qpdf\\include"
-        LIB="$LIB;d:\\qpdf\\lib"
-        LIBPATH="$LIBPATH;d:\\qpdf\\lib"
-    strategy:
-      matrix:
-        os: [windows-2019]
-        platform: [win_amd64, win32]
+  # wheels_windows:
+  #   name: Build wheels on ${{ matrix.os }} for ${{ matrix.platform }}
+  #   runs-on: ${{ matrix.os }}
+  #   env:
+  #     CIBW_SKIP: "cp27-* cp35-* pp2* pp3*"
+  #     CIBW_TEST_COMMAND: "pytest -nauto {project}/tests"
+  #     CIBW_TEST_REQUIRES: "-r requirements/test.txt"
+  #     CIBW_BUILD: "*-${{ matrix.platform }}"
+  #     CIBW_ENVIRONMENT: >-
+  #       INCLUDE="$INCLUDE;d:\\qpdf\\include"
+  #       LIB="$LIB;d:\\qpdf\\lib"
+  #       LIBPATH="$LIBPATH;d:\\qpdf\\lib"
+  #   strategy:
+  #     matrix:
+  #       os: [windows-2019]
+  #       platform: [win_amd64, win32]
 
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: "0"
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         fetch-depth: "0"
 
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: "3.8"
+  #     - uses: actions/setup-python@v2
+  #       name: Install Python
+  #       with:
+  #         python-version: "3.8"
 
-      - name: Download QPDF
-        run: |
-          build-scripts/win-download-qpdf.ps1 ${{ env.QPDF_VERSION }} ${{ matrix.platform }}
-        shell: pwsh
+  #     - name: Download QPDF
+  #       run: |
+  #         build-scripts/win-download-qpdf.ps1 ${{ env.QPDF_VERSION }} ${{ matrix.platform }}
+  #       shell: pwsh
 
-      - name: Build wheels
-        uses: joerick/cibuildwheel@v1.10.0
+  #     - name: Build wheels
+  #       uses: joerick/cibuildwheel@v1.10.0
 
-      - uses: actions/upload-artifact@v2
-        with:
-          path: ./wheelhouse/*.whl
+  #     - uses: actions/upload-artifact@v2
+  #       with:
+  #         path: ./wheelhouse/*.whl
 
-  sdist:
-    name: Build source distribution
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: "0"
+  # sdist:
+  #   name: Build source distribution
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         fetch-depth: "0"
 
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: "3.8"
+  #     - uses: actions/setup-python@v2
+  #       name: Install Python
+  #       with:
+  #         python-version: "3.8"
 
-      - name: Install apt packages
-        run: sudo apt-get install -y jbig2dec lcov
+  #     - name: Install apt packages
+  #       run: sudo apt-get install -y jbig2dec lcov
 
-      - name: Download QPDF
-        run: build-scripts/linux-download-qpdf.bash ${{ env.QPDF_MIN_VERSION }}
+  #     - name: Download QPDF
+  #       run: build-scripts/linux-download-qpdf.bash ${{ env.QPDF_MIN_VERSION }}
 
-      - name: Build QPDF
-        run: build-scripts/linux-build-sdist-deps.bash
+  #     - name: Build QPDF
+  #       run: build-scripts/linux-build-sdist-deps.bash
 
-      - name: Build sdist
-        run: |
-          export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade setuptools wheel
-          python setup.py sdist
+  #     - name: Build sdist
+  #       run: |
+  #         export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+  #         python -m pip install --upgrade pip
+  #         python -m pip install --upgrade setuptools wheel
+  #         python setup.py sdist
 
-      - name: Install and test sdist
-        run: |
-          export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-          python -m venv v
-          source v/bin/activate
-          python -m pip install dist/*.tar.gz
-          python -m pip install -r requirements/test.txt
-          python -m pytest -nauto
-          deactivate
+  #     - name: Install and test sdist
+  #       run: |
+  #         export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+  #         python -m venv v
+  #         source v/bin/activate
+  #         python -m pip install dist/*.tar.gz
+  #         python -m pip install -r requirements/test.txt
+  #         python -m pytest -nauto
+  #         deactivate
 
-      - name: Install natively
-        run: |
-          export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-          env CFLAGS="--coverage" CXXFLAGS="--coverage" python -m pip install -e .
-          python -m pip install -r requirements/test.txt
-          python -m pytest -nauto --cov-report xml --cov=src
+  #     - name: Install natively
+  #       run: |
+  #         export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+  #         env CFLAGS="--coverage" CXXFLAGS="--coverage" python -m pip install -e .
+  #         python -m pip install -r requirements/test.txt
+  #         python -m pytest -nauto --cov-report xml --cov=src
 
-      - name: Generate C++ coverage reports
-        run: |
-          lcov --no-external --capture --directory . --output-file cpp_coverage_all.info
-          lcov --remove cpp_coverage_all.info '*/pybind11/*' -o cpp_coverage.info
-          rm cpp_coverage_all.info
+  #     - name: Generate C++ coverage reports
+  #       run: |
+  #         lcov --no-external --capture --directory . --output-file cpp_coverage_all.info
+  #         lcov --remove cpp_coverage_all.info '*/pybind11/*' -o cpp_coverage.info
+  #         rm cpp_coverage_all.info
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
-        with:
-          files: ./coverage.xml,./cpp_coverage.info
+  #     - name: Upload coverage to Codecov
+  #       uses: codecov/codecov-action@v1
+  #       with:
+  #         files: ./coverage.xml,./cpp_coverage.info
 
-      - uses: actions/upload-artifact@v2
-        with:
-          path: dist/*.tar.gz
+  #     - uses: actions/upload-artifact@v2
+  #       with:
+  #         path: dist/*.tar.gz
 
-  upload_pypi:
-    needs: [wheels_linux, wheels_macos, wheels_windows, sdist]
-    runs-on: ubuntu-latest
-    # upload to PyPI on every tag starting with 'v'
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: artifact
-          path: dist
+  # upload_pypi:
+  #   needs: [wheels_linux, wheels_macos, wheels_windows, sdist]
+  #   runs-on: ubuntu-latest
+  #   # upload to PyPI on every tag starting with 'v'
+  #   if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
+  #   steps:
+  #     - uses: actions/download-artifact@v2
+  #       with:
+  #         name: artifact
+  #         path: dist
 
-      - uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: __token__
-          password: ${{ secrets.TOKEN_PYPI }}
-          # repository_url: https://test.pypi.org/legacy/
+  #     - uses: pypa/gh-action-pypi-publish@master
+  #       with:
+  #         user: __token__
+  #         password: ${{ secrets.TOKEN_PYPI }}
+  #         # repository_url: https://test.pypi.org/legacy/
