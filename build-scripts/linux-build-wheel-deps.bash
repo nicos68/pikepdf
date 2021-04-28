@@ -1,19 +1,19 @@
 #!/bin/bash
 set -ex
 
-if [ ! -f /usr/local/lib/libz.a ]; then
+if [ ! -f $DESTDIR/usr/local/lib/libz.a ]; then
     pushd zlib
-    ./configure && make -j install
+    ./configure && make -j install DESTDIR=$DESTDIR
     popd
 fi
 
-if [ ! -f  /usr/local/lib/libjpeg.a ]; then
+if [ ! -f $DESTDIR/usr/local/lib/libjpeg.a ]; then
     pushd jpeg
-    ./configure && make -j install
+    ./configure && make -j install DESTDIR=$DESTDIR
     popd
 fi
 
-if [ ! -f /usr/local/lib/libqpdf.a ]; then
+if [ ! -f $DESTDIR/usr/local/lib/libqpdf.a ]; then
     pushd qpdf
     patch -p1 --ignore-whitespace --unified << 'INSTALL_LIBS'
 diff --git a/make/libtool.mk b/make/libtool.mk
@@ -45,7 +45,7 @@ INSTALL_LIBS
         --disable-oss-fuzz \
         --disable-doc-maintenance \
         --disable-html-doc --disable-pdf-doc --disable-validate-doc \
-    && make -j install-libs
-    find /usr/local/lib -name 'libqpdf.so*' -type f -exec strip --strip-debug {} \+
+    && make install-libs DESTDIR=$DESTDIR
+    find $DESTDIR/usr/local/lib -name 'libqpdf.so*' -type f -exec strip --strip-debug {} \+
     popd
 fi
